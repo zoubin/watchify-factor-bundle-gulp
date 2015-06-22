@@ -36,7 +36,7 @@ function bundle() {
     return new Promise(function (resolve) {
         var common = b.bundle().pipe(source('common.js'));
         b.once('factor.outputs', function (o) {
-            outputs = o.concat(common);
+            var outputs = o.concat(common);
             mergeStream.obj(outputs)
                 // log errors if they happen
                 .on('error', gutil.log.bind(gutil, 'Browserify Error'))
