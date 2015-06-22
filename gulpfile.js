@@ -1,19 +1,3 @@
-# watchify-factor-bundle-gulp
-Example to use watchify + factor-bundle + gulp
-
-## Usage
-
-```bash
-git clone https://github.com/zoubin/watchify-factor-bundle-gulp.git
-cd watchify-factor-bundle-gulp
-npm i
-
-gulp
-```
-
-## gulpfile.js
-
-```javascript
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 
@@ -63,5 +47,3 @@ function bundle() {
         });
     });
 }
-
-```
