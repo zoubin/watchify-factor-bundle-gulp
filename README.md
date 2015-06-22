@@ -127,6 +127,7 @@ function bundle() {
         b.on('factor.pipeline', repipe);
 
         function repipe(file, pipeline) {
+            // we have to cut off the old outputs, and build a new one writable
             pipeline.unpipe();
             var o = getOutput(file);
             outputs.push(o);
