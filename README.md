@@ -7,6 +7,7 @@ Example to use watchify + factor-bundle + gulp
 git clone https://github.com/zoubin/watchify-factor-bundle-gulp.git
 cd watchify-factor-bundle-gulp
 npm i
+npm i zoubin/factor-bundle#feature-callback-outputs
 
 gulp
 ```
