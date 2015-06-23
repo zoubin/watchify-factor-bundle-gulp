@@ -5,11 +5,13 @@
   "main": "index.js",
   "dependencies": {
     "browserify": "^10.2.4",
+    "event-stream": "^3.3.1",
+    "factor-bundle": "^2.4.1",
     "gulp": "^3.9.0",
     "gulp-util": "^3.0.5",
-    "multistream-merge": "^0.2.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.2.2"
+    "watchify": "^3.2.2",
+    "xbind": "^1.0.0"
   },
   "devDependencies": {},
   "repository": {
