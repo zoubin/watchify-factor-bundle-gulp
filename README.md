@@ -9,6 +9,8 @@ Here is a solution based on the [pull-request](https://github.com/substack/facto
 git clone https://github.com/zoubin/watchify-factor-bundle-gulp.git
 cd watchify-factor-bundle-gulp
 npm i
+cd factor-bundle-callback
+npm i
 
 gulp
 ```
