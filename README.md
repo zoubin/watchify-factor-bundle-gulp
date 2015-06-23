@@ -92,9 +92,11 @@ var opts = {
 var b = watchify(browserify(opts));
 
 var pipelines = [];
+var files = [];
 b.on('factor.pipeline', function (file, pipeline) {
-    if (pipelines.push([file, pipeline]) === entries.length) {
-        b.emit('factor.pipelines', pipelines);
+    files.push(file);
+    if (pipelines.push(pipeline) === entries.length) {
+        b.emit('factor.pipelines', files, pipelines);
     }
 });
 b.plugin('factor-bundle', {
@@ -111,20 +113,19 @@ function bundle() {
         var outputs = [b.bundle().pipe(source('common.js'))];
 
         if (pipelines.length === entries.length) {
-            consume(pipelines, outputs, resolve);
+            consume(files, pipelines, outputs, resolve);
         }
         else {
-            b.once('factor.pipelines', function (pipelines) {
-                consume(pipelines, outputs, resolve);
+            b.once('factor.pipelines', function (files, pipelines) {
+                consume(files, pipelines, outputs, resolve);
             });
         }
     });
 }
 
-function consume(pipelines, outputs, done) {
-    pipelines.forEach(function (info) {
-        var file = info[0];
-        var pipeline = info[1];
+function consume(files, pipelines, outputs, done) {
+    pipelines.forEach(function (pipeline, i) {
+        var file = files[i];
         // we have to cut off the old outputs
         pipeline.unpipe();
         // and build a new one writable
@@ -132,8 +133,10 @@ function consume(pipelines, outputs, done) {
         pipeline.pipe(o);
         outputs.push(o);
     });
+
     // pipelines are consumed, make it available for next `factor.pipelines` event
     pipelines.length = 0;
+    files.length = 0;
 
     es.merge(outputs)
         .on('error', gutil.log.bind(gutil, 'Browserify Error'))
