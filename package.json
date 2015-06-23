@@ -10,8 +10,7 @@
     "gulp": "^3.9.0",
     "gulp-util": "^3.0.5",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.2.2",
-    "xbind": "^1.0.0"
+    "watchify": "^3.2.2"
   },
   "devDependencies": {},
   "repository": {

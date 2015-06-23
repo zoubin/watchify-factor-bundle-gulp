@@ -5,7 +5,6 @@ var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var es = require('event-stream');
 var path = require('path');
-var rbind = require('xbind').append;
 
 var entries = [ src('blue/index.js'), src('red/index.js') ];
 var opts = {
@@ -36,7 +35,9 @@ function bundle() {
             consume(pipelines, outputs, resolve);
         }
         else {
-            b.once('factor.pipelines', rbind([outputs, resolve], consume));
+            b.once('factor.pipelines', function (pipelines) {
+                consume(pipelines, outputs, resolve);
+            });
         }
     });
 }
