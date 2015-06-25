@@ -77,80 +77,49 @@ function src() {
 ## hack.js
 
 ```javascript
+var wrap = require('gulp-watchify-factor-bundle');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var watchify = require('watchify');
-var browserify = require('browserify');
-var source = require('vinyl-source-stream');
-var es = require('event-stream');
 var path = require('path');
+var buffer = require('vinyl-buffer');
+var uglify = require('gulp-uglify');
+var browserify = require('browserify');
 
 var entries = [ src('blue/index.js'), src('red/index.js') ];
-var opts = {
+var b = browserify({
     entries: entries,
-};
-var b = watchify(browserify(opts));
+});
 
-var pipelines = [];
-var files = [];
-b.on('factor.pipeline', function (file, pipeline) {
-    files.push(file);
-    if (pipelines.push(pipeline) === entries.length) {
-        b.emit('factor.pipelines', files, pipelines);
+var bundle = wrap(b,
+    // options for factor bundle.
+    {
+        entries: entries,
+        outputs: [ 'blue.js', 'red.js' ],
+        common: 'common.js',
+    },
+    // more transforms. Should always return a stream.
+    function (bundleStream) {
+        return bundleStream
+            .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+
+            // `optional`. use `buffer()` to make `stream not support` gulp plugins work
+            .pipe(buffer())
+
+            // use more gulp plugins here
+            .pipe(uglify())
+
+            .pipe(gulp.dest('./build/js'))
     }
-});
-b.plugin('factor-bundle', {
-    entries: entries,
-    outputs: entries.map(getOutput),
-});
+);
 
-gulp.task('default', bundle); // so you can run `gulp js` to build the file
-b.on('update', bundle); // on any dep update, runs the bundler
-b.on('log', gutil.log); // output build logs to terminal
-
-function bundle() {
-    return new Promise(function (resolve) {
-        var outputs = [b.bundle().pipe(source('common.js'))];
-
-        if (pipelines.length === entries.length) {
-            consume(files, pipelines, outputs, resolve);
-        }
-        else {
-            b.once('factor.pipelines', function (files, pipelines) {
-                consume(files, pipelines, outputs, resolve);
-            });
-        }
-    });
-}
-
-function consume(files, pipelines, outputs, done) {
-    pipelines.forEach(function (pipeline, i) {
-        var file = files[i];
-        // we have to cut off the old outputs
-        pipeline.unpipe();
-        // and build a new one writable
-        var o = getOutput(file);
-        pipeline.pipe(o);
-        outputs.push(o);
-    });
-
-    // pipelines are consumed, make it available for next `factor.pipelines` event
-    pipelines.length = 0;
-    files.length = 0;
-
-    es.merge(outputs)
-        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-        .pipe(gulp.dest('./build/js'))
-        .on('finish', function () {
-            done && done();
-        });
-}
+b.on('log', gutil.log);
+// normal bundle task
+gulp.task('default', bundle);
+// watchify bundle task
+gulp.task('watch', wrap.watch(bundle));
 
 function src() {
     return path.resolve.bind(path, __dirname, 'src/page').apply(null, arguments);
-}
-function getOutput(file) {
-    return source(path.basename(path.dirname(file)) + '.js');
 }
 
 ```
